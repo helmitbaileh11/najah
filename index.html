@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب موافقة نشاط طلابي</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Rubik', sans-serif;
+            direction: rtl;
+            margin: 20px;
+        }
+        #logo {
+            width: 100px; /* يمكنك تعديل الحجم حسب الحاجة */
+            margin-bottom: 20px;
+        }
+        #loginForm {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            display: none; /* إخفاء المحتوى حتى إدخال كلمة السر */
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="date"], input[type="password"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        .checkbox-group {
+            margin-bottom: 20px;
+        }
+        .checkbox-group label {
+            display: inline;
+            margin-right: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <img id="logo" src="logo.png" alt="شعار الجامعة">
+    
+    <div id="loginForm">
+        <h2>أدخل كلمة السر</h2>
+        <label for="password">كلمة السر:</label>
+        <input type="password" id="password" required>
+        <button id="loginButton">دخول</button>
+    </div>
+
+    <form id="activityForm">
+        <h2>طلب موافقة نشاط طلابي</h2>
+
+        <label for="activityName">اسم النشاط:</label>
+        <input type="text" id="activityName" name="activityName" required>
+
+        <label for="organizer">الجهة القائمة على النشاط:</label>
+        <input type="text" id="organizer" name="organizer" required>
+
+        <label for="activityDate">تاريخ النشاط:</label>
+        <input type="date" id="activityDate" name="activityDate" required>
+
+        <label for="details">تفاصيل النشاط:</label>
+        <textarea id="details" name="details" rows="4" required></textarea>
+
+        <label for="location">مكان النشاط:</label>
+        <input type="text" id="location" name="location" required>
+
+        <label for="deanshipApproval">هل وافقت عمادة شؤون الطلبة؟</label>
+        <input type="checkbox" id="deanshipApproval" name="deanshipApproval">
+
+        <label for="approvalRequest">طلب موافقة من:</label>
+        <div class="checkbox-group">
+            <label><input type="checkbox" name="approval" value="universityAdministration"> إدارة الجامعة</label>
+            <label><input type="checkbox" name="approval" value="universitySecurity"> الأمن الجامعي</label>
+            <label><input type="checkbox" name="approval" value="academicCommittee"> اللجنة الأكاديمية</label>
+        </div>
+
+        <button type="submit">إرسال الطلب</button>
+    </form>
+
+    <div id="result"></div>
+
+    <script>
+        document.getElementById("loginButton").addEventListener("click", function() {
+            const password = document.getElementById("password").value;
+            if (password === '0000') {
+                document.getElementById("loginForm").style.display = 'none';
+                document.getElementById("activityForm").style.display = 'block'; // عرض النموذج بعد إدخال كلمة السر صحيحة
+            } else {
+                alert('كلمة السر غير صحيحة. حاول مرة أخرى.');
+            }
+        });
+
+        document.getElementById("activityForm").addEventListener("submit", function(event){
+            event.preventDefault();
+            
+            const activityName = document.getElementById("activityName").value;
+            const organizer = document.getElementById("organizer").value;
+            const activityDate = document.getElementById("activityDate").value;
+            const details = document.getElementById("details").value;
+            const location = document.getElementById("location").value;
+            const deanshipApproved = document.getElementById("deanshipApproval").checked;
+
+            const approvals = [];
+            document.querySelectorAll('input[name="approval"]:checked').forEach((checkbox) => {
+                approvals.push(checkbox.value);
+            });
+
+            if(activityName && organizer && activityDate && details && location && approvals.length > 0 && deanshipApproved) {
+                approvals.forEach((approval) => {
+                    const storedRequests = JSON.parse(localStorage.getItem(approval)) || [];
+                    storedRequests.push({
+                        activityName,
+                        organizer,
+                        activityDate,
+                        details,
+                        location,
+                        status: 'pending'
+                    });
+                    localStorage.setItem(approval, JSON.stringify(storedRequests));
+                });
+                alert("تم إرسال الطلب بنجاح!");
+            } else {
+                alert("يرجى ملء جميع الحقول واختيار الجهات المطلوبة للموافقة، والتأكد من موافقة عمادة شؤون الطلبة.");
+            }
+        });
+    </script>
+
+</body>
+</html>
